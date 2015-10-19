@@ -7,8 +7,10 @@ from datetime import date
 from time import sleep
 from os.path import expanduser
 
+# crawl Usd to Twd price from Taishin Bank
 class UsdCrawler:
 
+    # get page context
     def getPage(self):
         try:
             url = 'https://www.taishinbank.com.tw/TS/TS06/TS0605/TS060502/index.htm?urlPath1=TS02&urlPath2=TS0202'
@@ -21,20 +23,23 @@ class UsdCrawler:
                 print "fuck u" + str(e.reason)
                 return self.getPage()
 
-
+    # entry point
     def start(self):
         pattern = re.compile('serif">.*?:(.*?)</FONT>.*?USD.*?center">(.*?)</td>', re.S)
         home = expanduser("~")
         filename = str(date.today())
+        # store the older update time
         old = ""
 
         while True:
             pageCode = self.getPage()
             items = re.findall(pattern, pageCode)
             for i in items:
+                # if price greater then $33, alert me to sell it!
                 if float(i[1]) > 33.0:
                     print "sell it!"
 
+                # if there is difference in update time, write it to file
                 if i[0] != old:
                     with open(home + "/USD/" + filename, "a") as f:
                         f.write(i[0] + " --- $" + i[1] + "\n")
